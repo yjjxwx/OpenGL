@@ -1,0 +1,6 @@
+.excludes
+*.user
+*.json
+*~
+*.txt
+*.e
