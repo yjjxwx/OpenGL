@@ -2,7 +2,7 @@
 #Compile the fold in the file
 #g++ main.cpp -o main.e -lglut -lGLU -lGLEW -lGL
 dir="`pwd`/$1"
-if [ -n "$dir" ]
+if [ -d "$dir" ]
 then
 	echo "Start Comile file in $dir fold"
 	files=""
