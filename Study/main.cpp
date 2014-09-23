@@ -19,8 +19,9 @@ void init(){
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     ratio = (GLfloat)screenWidth/(GLfloat)screenHeight;
-    // gluPerspective(45.0f,ratio,0.1f,100.f);
-      gluOrtho2D(0.0f,screenWidth,0.0f,screenHeight);
+    gluPerspective(45.0f,ratio,0.1f,100.0f);
+      // gluOrtho2D(0.0f,screenWidth,0.0f,screenHeight);
+    gluLookAt(0,0,25,0,0,0,0,1,0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
@@ -28,14 +29,10 @@ void display(){
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
     glBegin(GL_TRIANGLES);
-		glColor3f(1.0f,0.0f,0.0f);
-		glVertex2i(2,2);
-		glVertex2i(screenWidth-2,2);
-		glVertex2i(2,screenHeight-2);
-		glColor3f(0.0f,1.0f,0.0f);
-		glVertex2i(screenWidth-2,2);
-		glVertex2i(screenWidth,screenHeight);
-		glVertex2i(2,screenHeight);
+		glColor3f(1.0f,1.0f,0.0f);
+		glVertex3f(0.0f,8.0f,0.0f);
+		glVertex3f(0.0f,0.0f,0.0f);
+		glVertex3f(8.0f,0.0f,0.0f);
     glEnd();
     glFlush();
 }
