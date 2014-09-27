@@ -18,7 +18,7 @@ GLShaderManager.o    : $(SHAREDPATH)GLShaderManager.cpp
 $(MAIN).o : $(SRCPATH)$(MAIN).cpp
 math3d.o    : $(SHAREDPATH)math3d.cpp
 $(MAIN) : $(MAIN).o glew.o
-	$(CC) $(CFLAGS) -o $(MAIN) $(LIBDIRS) $(SRCPATH)$(MAIN).cpp \
+	$(CC) $(CFLAGS) -o $(MAIN).e $(LIBDIRS) $(SRCPATH)$(MAIN).cpp \
 	$(SHAREDPATH)glew.c $(SHAREDPATH)GLTools.cpp $(SHAREDPATH)GLBatch.cpp $(SHAREDPATH)GLTriangleBatch.cpp $(SHAREDPATH)GLShaderManager.cpp $(SHAREDPATH)math3d.cpp $(LIBS)
 clean:
 	rm -f *.o

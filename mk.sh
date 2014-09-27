@@ -9,7 +9,7 @@ then
 	then
 		echo "Compile End"
 		echo "Start execute"
-		./$dir
+		./$dir.e
 		echo "End execute"	
 	else
 		echo "Compile Error"

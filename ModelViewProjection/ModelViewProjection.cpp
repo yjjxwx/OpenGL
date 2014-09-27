@@ -1,9 +1,13 @@
 #include <GLTools.h>
 #include <GLShaderManager.h>
 #include <GL/glut.h>
+#include <GLFrustum.h>
+#include <math3d.h>
+#include <StopWatch.h>
 
-GLBatch	pointsBatch;
+GLTriangleBatch	torusBatch;
 GLShaderManager	shaderManager;
+GLFrustum viewFrustum; 
 
 GLfloat vVerts[] = { 
 	-0.5f, -0.5f, 0.0f, 
@@ -16,7 +20,11 @@ GLfloat blockSize = 0.5f;
 // Window has changed size, or has just been created. In either case, we need
 // to use the window dimensions to set the viewport and the projection matrix.
 void ChangeSize(int w, int h){
+	if(h == 0){
+		h = 1;
+	}
 	glViewport(0, 0, w, h);
+	viewFrustum.SetPerspective(35.0f, (float)w/(float)h, 1.0f, 1000.0f);
 }
 
 
@@ -25,14 +33,10 @@ void ChangeSize(int w, int h){
 // This is the first opportunity to do any OpenGL related tasks.
 void SetupRC(){
 	// Blue background
-	glClearColor(0.0f, 0.0f, 1.0f, 1.0f );
-	glEnable(GL_SMOOTH);
-	glEnable(GL_POINT_SMOOTH);
+	glClearColor(0.8f, 0.8f, 0.8f, 1.0f );
 	shaderManager.InitializeStockShaders();
-	pointsBatch.Begin(GL_POINTS, 4);
-	pointsBatch.CopyVertexData3f(vVerts);
-	pointsBatch.End();
-
+	gltMakeTorus(torusBatch,0.4f, 0.15f, 30, 30);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 
@@ -42,27 +46,31 @@ void SetupRC(){
 void RenderScene(void){
 	// Clear the window with current clearing color
 // | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT
-	glClear(GL_COLOR_BUFFER_BIT);
-	glClearColor(0.0f, 0.0f, 1.0f, 1.0f );
-	GLfloat vRed[] = { 1.0f, 0.0f, 0.0f, 1.0f };
-	shaderManager.UseStockShader(GLT_SHADER_IDENTITY, vRed);
-	GLfloat sizes[2];
-	GLfloat step;
-	glGetFloatv(GL_POINT_SIZE_RANGE,sizes);
-	glGetFloatv(GL_POINT_SIZE_GRANULARITY, &step);
-	GLfloat x = -1.0f;
-	for(GLfloat s = sizes[0], x = -0.9f; s <= sizes[1]; s += step, x += 0.05f){
-		glPointSize(s);
-		pointsBatch.Begin(GL_POINTS, 1);
-		GLfloat points[] = {
-			x,0.0f,0.0f
-		};
-		pointsBatch.CopyVertexData3f(points);
-		pointsBatch.End();
-		pointsBatch.Draw();
-	}
-	// Perform the buffer swap to display back buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//Set up time based animation
+	static CStopWatch rotTimer;
+	float yRot = rotTimer.GetElapsedSeconds() * 60.0f;
+
+	//Matrix variables
+	M3DMatrix44f mTranslate, mRotate, mModelView, mModelViewProjection;
+
+	//Create a translation matrix to move the torus back and into sight.
+	m3dTranslationMatrix44(mTranslate,0.0f,0.0f,-2.5f);
+	
+	m3dRotationMatrix44(mRotate,m3dDegToRad(yRot),0.0f,1.0f,0.0f);
+	//Add a rotation to the translation. store the result in mModelView.
+	m3dMatrixMultiply44(mModelView,mTranslate, mRotate);
+
+	m3dMatrixMultiply44(mModelViewProjection, viewFrustum.GetProjectionMatrix(), mModelView);
+
+	GLfloat vBlack[] = {
+		0.0f,0.0f,0.0f,1.0f
+	};
+
+	shaderManager.UseStockShader(GLT_SHADER_FLAT, mModelViewProjection, vBlack);
+	torusBatch.Draw();
 	glutSwapBuffers();
+	glutPostRedisplay();
 }
 
 void SpecialKeys(int key, int x, int y){
@@ -92,7 +100,7 @@ void SpecialKeys(int key, int x, int y){
 int main(int argc, char* argv[]){
 	gltSetWorkingDirectory(argv[0]);
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGBA);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(800, 600);
 	glutCreateWindow("Triangle");
     glutReshapeFunc(ChangeSize);
