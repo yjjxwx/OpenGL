@@ -6,3 +6,5 @@
 *.e
 bin/
 obj/
+*.o
+*.cbp

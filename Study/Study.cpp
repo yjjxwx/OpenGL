@@ -1,14 +1,13 @@
 #include <iostream>
-
 using namespace std;
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
-
 const GLint screenWidth = 640;
 const GLint screenHeight = 480;
 GLfloat ratio = 0.9f;
-void init(){
+void init()
+{
     glClearColor(0.0f,0.0f,0.0f,1.0f);
     glShadeModel(GL_SMOOTH);
     glViewport(0,0,screenWidth,screenHeight);
@@ -19,20 +18,21 @@ void init(){
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     ratio = (GLfloat)screenWidth/(GLfloat)screenHeight;
-    gluPerspective(45.0f,ratio,0.1f,100.0f);
+    gluPerspective(45.0f,ratio,30.f,70.0f);
       // gluOrtho2D(0.0f,screenWidth,0.0f,screenHeight);
-    gluLookAt(0,0,25,0,0,0,0,1,0);
+    gluLookAt(0,0,30,0,0,-1,0,1,0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
-void display(){
+void display()
+{
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
     glBegin(GL_TRIANGLES);
 		glColor3f(1.0f,1.0f,0.0f);
-		glVertex3f(0.0f,8.0f,0.0f);
+		glVertex3f(0.0f,1.0f,0.0f);
 		glVertex3f(0.0f,0.0f,0.0f);
-		glVertex3f(8.0f,0.0f,0.0f);
+		glVertex3f(1.0f,0.0f,0.0f);
     glEnd();
     glFlush();
 }
