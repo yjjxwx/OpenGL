@@ -6,6 +6,7 @@
 #include <StopWatch.h>
 #include <GLMatrixStack.h>
 #include <GLGeometryTransform.h>
+#define NUM_SPHERES 50
 GLTriangleBatch	torusBatch;
 GLBatch floorBatch;
 GLTriangleBatch sphereBatch;
@@ -15,6 +16,7 @@ GLMatrixStack modelViewMatrix;
 GLMatrixStack projectionMatrix;
 GLGeometryTransform transformPipeLine;
 GLFrame cameraFrame;
+GLFrame spheres[NUM_SPHERES];
 
 GLfloat vVerts[] = { 
 	-0.5f, -0.5f, 0.0f, 
@@ -45,8 +47,8 @@ void SetupRC(){
 	// Blue background
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f );
 	shaderManager.InitializeStockShaders();
-	gltMakeTorus(torusBatch,0.4f, 0.15f, 30, 30);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	gltMakeTorus(torusBatch,0.4f, 0.15f, 40, 40);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     floorBatch.Begin(GL_LINES, 324);
     for(GLfloat x = -20.0; x <= 20.0f; x+= 0.5) {
@@ -55,10 +57,14 @@ void SetupRC(){
         
         floorBatch.Vertex3f(20.0f, -0.55f, x);
         floorBatch.Vertex3f(-20.0f, -0.55f, x);
-        }
+    }
     floorBatch.End();
-
-    gltMakeSphere(sphereBatch, 0.2, 16, 20);
+    for(int i = 0; i < NUM_SPHERES; ++i){
+    	GLfloat x = ((GLfloat)((rand() % 400) - 200) * 0.1f);
+		GLfloat z = ((GLfloat)((rand() % 400) - 200) * 0.1f);
+		spheres[i].SetOrigin(x,0.0f,z);
+    }
+    gltMakeSphere(sphereBatch, 0.2, 30, 30);
 }
 
 
@@ -84,6 +90,14 @@ void RenderScene(void){
 	shaderManager.UseStockShader(GLT_SHADER_FLAT, transformPipeLine.GetModelViewProjectionMatrix(), vFloorColor);
 	floorBatch.Draw();
 
+	for(int i = 0; i < NUM_SPHERES; ++i){
+		modelViewMatrix.PushMatrix();
+		modelViewMatrix.MultMatrix(spheres[i]);
+		shaderManager.UseStockShader(GLT_SHADER_FLAT, transformPipeLine.GetModelViewProjectionMatrix(), vSphereColor);
+		sphereBatch.Draw();
+		modelViewMatrix.PopMatrix();	
+	}
+
 	modelViewMatrix.Translate(0.0f,0.0f, -2.50f);
 	modelViewMatrix.PushMatrix();
 
@@ -103,9 +117,8 @@ void RenderScene(void){
 }
 
 void SpecialKeys(int key, int x, int y){
-	GLfloat linear = 0.01f;
-	GLfloat angular = (GLfloat)(m3dDegToRad(0.5f));
-
+	GLfloat linear = 0.08f;
+	GLfloat angular = (GLfloat)(m3dDegToRad(3.0f));
 	switch(key){
 		case GLUT_KEY_UP:
 			cameraFrame.MoveForward(linear);
