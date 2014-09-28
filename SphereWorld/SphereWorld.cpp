@@ -8,6 +8,7 @@
 #include <GLGeometryTransform.h>
 GLTriangleBatch	torusBatch;
 GLBatch floorBatch;
+GLTriangleBatch sphereBatch;
 GLShaderManager	shaderManager;
 GLFrustum viewFrustum; 
 GLMatrixStack modelViewMatrix;
@@ -54,7 +55,9 @@ void SetupRC(){
         floorBatch.Vertex3f(20.0f, -0.55f, x);
         floorBatch.Vertex3f(-20.0f, -0.55f, x);
         }
-    floorBatch.End(); 
+    floorBatch.End();
+
+    gltMakeSphere(sphereBatch, 0.2, 16, 20);
 }
 
 
@@ -64,21 +67,30 @@ void SetupRC(){
 void RenderScene(void){
 	static GLfloat vFloorColor[] = {0.0f, 1.0f, 0.0f, 1.0f};
 	static GLfloat vTorusColor[] = {1.0f, 0.0f, 0.0f, 1.0f};
+	static GLfloat vSphereColor[] = {0.0f, 0.0f, 1.0f, 1.0f};
+	
 	// Clear the window with current clearing color
 // | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//Set up time based animation
 	static CStopWatch rotTimer;
-	float yRot = rotTimer.GetElapsedSeconds() * 60.0f;
-
 	modelViewMatrix.PushMatrix();
+	float yRot = rotTimer.GetElapsedSeconds() * 60.0f;
 	shaderManager.UseStockShader(GLT_SHADER_FLAT, transformPipeLine.GetModelViewProjectionMatrix(), vFloorColor);
 	floorBatch.Draw();
 
-	modelViewMatrix.Translate(0.0f,0.0f, -2.5f);
+	modelViewMatrix.Translate(0.0f,0.0f, -2.50f);
+	modelViewMatrix.PushMatrix();
+
 	modelViewMatrix.Rotate(yRot,0.0f,1.0f,0.0f);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT,transformPipeLine.GetModelViewProjectionMatrix(),vTorusColor);
 	torusBatch.Draw();
+	modelViewMatrix.PopMatrix();
+	modelViewMatrix.Rotate(yRot*-2.0f,0.0f,1.0f,0.0f);
+	modelViewMatrix.Translate(0.8f,0.0f,0.0f);
+	shaderManager.UseStockShader(GLT_SHADER_FLAT, transformPipeLine.GetModelViewProjectionMatrix(),
+		vSphereColor);
+	sphereBatch.Draw();
 	modelViewMatrix.PopMatrix();
 	glutSwapBuffers();
 	glutPostRedisplay();

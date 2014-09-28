@@ -1,6 +1,6 @@
 SRCPATH = ./
 SHAREDPATH = ../GLTools/src/
-SHAREDINCPATH = ..//GLTools/include
+SHAREDINCPATH = ../GLTools/include
 LIBDIRS = -L/usr/X11R6/lib -L/usr/X11R6/lib64 -L/usr/local/lib
 INCDIRS = -I$(SHAREDINCPATH)  -I$(SHAREDINCPATH)/GL \
 	-I/usr/include -I/usr/local/include -I/usr/include/GL
