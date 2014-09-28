@@ -17,6 +17,8 @@ GLMatrixStack projectionMatrix;
 GLGeometryTransform transformPipeLine;
 GLFrame cameraFrame;
 GLFrame spheres[NUM_SPHERES];
+M3DVector4f vLightPos = {0.0f, 10.0f, 5.0f, 1.0f};
+M3DVector4f vLightEyePos;
 
 GLfloat vVerts[] = { 
 	-0.5f, -0.5f, 0.0f, 
@@ -65,6 +67,19 @@ void SetupRC(){
 		spheres[i].SetOrigin(x,0.0f,z);
     }
     gltMakeSphere(sphereBatch, 0.2, 30, 30);
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_POINT_SMOOTH);
+    glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+    glEnable(GL_LINE_SMOOTH);
+    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+    glEnable(GL_POLYGON_SMOOTH);
+    glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
 }
 
 
@@ -86,14 +101,24 @@ void RenderScene(void){
 	modelViewMatrix.PushMatrix();
 	M3DMatrix44f mCamera;
 	cameraFrame.GetCameraMatrix(mCamera);
+	m3dTransformVector4(vLightEyePos, vLightPos, mCamera);
 	modelViewMatrix.PushMatrix(mCamera);
-	shaderManager.UseStockShader(GLT_SHADER_FLAT, transformPipeLine.GetModelViewProjectionMatrix(), vFloorColor);
+	shaderManager.UseStockShader(GLT_SHADER_POINT_LIGHT_DIFF, 
+		transformPipeLine.GetModelViewMatrix(),
+		transformPipeLine.GetProjectionMatrix(),
+		vLightEyePos,
+		vFloorColor);
 	floorBatch.Draw();
 
 	for(int i = 0; i < NUM_SPHERES; ++i){
 		modelViewMatrix.PushMatrix();
+		modelViewMatrix.Rotate(yRot*-0.2f,0.0f,1.0f,0.0f);
 		modelViewMatrix.MultMatrix(spheres[i]);
-		shaderManager.UseStockShader(GLT_SHADER_FLAT, transformPipeLine.GetModelViewProjectionMatrix(), vSphereColor);
+		shaderManager.UseStockShader(GLT_SHADER_POINT_LIGHT_DIFF, 
+			transformPipeLine.GetModelViewMatrix(),
+			transformPipeLine.GetProjectionMatrix(),
+			vLightEyePos,
+			vSphereColor);
 		sphereBatch.Draw();
 		modelViewMatrix.PopMatrix();	
 	}
@@ -102,12 +127,19 @@ void RenderScene(void){
 	modelViewMatrix.PushMatrix();
 
 	modelViewMatrix.Rotate(yRot,0.0f,1.0f,0.0f);
-	shaderManager.UseStockShader(GLT_SHADER_FLAT,transformPipeLine.GetModelViewProjectionMatrix(),vTorusColor);
+	shaderManager.UseStockShader(GLT_SHADER_POINT_LIGHT_DIFF, 
+		transformPipeLine.GetModelViewMatrix(),
+		transformPipeLine.GetProjectionMatrix(),
+		vLightEyePos,
+		vTorusColor);
 	torusBatch.Draw();
 	modelViewMatrix.PopMatrix();
 	modelViewMatrix.Rotate(yRot*-2.0f,0.0f,1.0f,0.0f);
 	modelViewMatrix.Translate(0.8f,0.0f,0.0f);
-	shaderManager.UseStockShader(GLT_SHADER_FLAT, transformPipeLine.GetModelViewProjectionMatrix(),
+	shaderManager.UseStockShader(GLT_SHADER_POINT_LIGHT_DIFF, 
+		transformPipeLine.GetModelViewMatrix(),
+		transformPipeLine.GetProjectionMatrix(),
+		vLightEyePos,
 		vSphereColor);
 	sphereBatch.Draw();
 	modelViewMatrix.PopMatrix();
