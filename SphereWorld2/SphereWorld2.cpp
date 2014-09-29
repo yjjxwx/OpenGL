@@ -103,10 +103,8 @@ void RenderScene(void){
 	cameraFrame.GetCameraMatrix(mCamera);
 	m3dTransformVector4(vLightEyePos, vLightPos, mCamera);
 	modelViewMatrix.PushMatrix(mCamera);
-	shaderManager.UseStockShader(GLT_SHADER_POINT_LIGHT_DIFF, 
-		transformPipeLine.GetModelViewMatrix(),
-		transformPipeLine.GetProjectionMatrix(),
-		vLightEyePos,
+	shaderManager.UseStockShader(GLT_SHADER_FLAT, 
+		transformPipeLine.GetModelViewProjectionMatrix(),
 		vFloorColor);
 	floorBatch.Draw();
 
